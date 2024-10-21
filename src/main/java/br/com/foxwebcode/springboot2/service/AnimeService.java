@@ -1,6 +1,7 @@
 package br.com.foxwebcode.springboot2.service;
 
 import br.com.foxwebcode.springboot2.domain.Anime;
+import br.com.foxwebcode.springboot2.mapper.AnimeMapper;
 import br.com.foxwebcode.springboot2.repository.AnimeRepository;
 import br.com.foxwebcode.springboot2.requests.AnimePostRequestBody;
 import br.com.foxwebcode.springboot2.requests.AnimePutRequestBody;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AnimeService {
     private final AnimeRepository animeRepository;
+    private final AnimeMapper animeMapper;
 
     public List<Anime> listAll() {
         return animeRepository.findAll();
@@ -27,7 +29,7 @@ public class AnimeService {
 
     public Anime save(AnimePostRequestBody animePostRequestBody) {
 
-        return animeRepository.save(Anime.builder().name(animePostRequestBody.getName()).build());
+        return animeRepository.save(animeMapper.toAnime(animePostRequestBody));
     }
 
     public void delete(long id) {
@@ -37,10 +39,8 @@ public class AnimeService {
     public void replace(AnimePutRequestBody animePutRequestBody) {
         Anime savedAnime = findByIdOrThrowBadRequestException(animePutRequestBody.getId());
 
-        Anime anime = Anime.builder()
-                .id(savedAnime.getId())
-                .name(animePutRequestBody.getName())
-                .build();
+        Anime anime = animeMapper.toAnime(animePutRequestBody);
+        anime.setId(savedAnime.getId());
 
         animeRepository.save(anime);
 
